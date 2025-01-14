@@ -30,7 +30,21 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(checkAuth());
+    const tokenString = sessionStorage.getItem("token");
+
+    if (tokenString) {
+        try {
+            const token = JSON.parse(tokenString);
+            dispatch(checkAuth(token));
+          } catch (error) {
+            console.error("Error parsing token from sessionStorage:", error);
+            // Handle the error gracefully. maybe clean up invalid session storage.
+            sessionStorage.removeItem("token"); // clear invalid entry
+         }
+     } else {
+         // Handle the case where no token is found.
+        dispatch(checkAuth(null)); // Or perhaps another appropriate action.
+     }
   }, [dispatch]);
 
   if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
